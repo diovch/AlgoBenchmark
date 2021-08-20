@@ -2,8 +2,12 @@
 
 #include "Test.h"
 
+
+
 int main()
 {
-	TestTask();
+	SearchInListTest();
+
+	std::cout << "finished" << std::endl;
 	return 0;
 }

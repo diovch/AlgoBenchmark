@@ -1,3 +1,5 @@
 #pragma once
 
-void TestTask();
+void FindSubStringNaiveTest();
+
+void SearchInListTest();
