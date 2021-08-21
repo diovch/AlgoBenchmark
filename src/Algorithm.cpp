@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Algorithm.h"
 
 bool FindSubStringNaive(const std::string text, const std::string subString)
@@ -46,14 +48,33 @@ list* SearchInList(list* first, int target)
 		return SearchInList(first->next, target);
 }
 
-void CreateList(list* first, int* t, size_t size)
+void CreateList(list* first, int* numData, size_t size)
 {
 	list* temp = first;
 	for (int i = 0; i < size; ++i)
 	{
-		temp->data = t[i];
-		list newNode;
-		temp->next = &newNode;
+		temp->data = numData[i];
+		list* newNode = new list;
+		temp->next = newNode;
 		temp = temp->next;
 	}
+}
+
+void InsertElementInList(list* first, int data)
+{
+	list* newNode = new list;
+	newNode->next = first;
+	newNode->data = data;
+	first = newNode;
+}
+
+void PrintListElements(list* first)
+{
+	if (first->next == NULL)
+	{
+		std::cout << std::endl;
+		return;
+	}
+	else
+		std::cout << first->data << " ";
 }

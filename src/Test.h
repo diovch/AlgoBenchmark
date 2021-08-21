@@ -3,3 +3,5 @@
 void FindSubStringNaiveTest();
 
 void SearchInListTest();
+
+void InsertElementInListTest();

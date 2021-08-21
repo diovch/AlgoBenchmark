@@ -29,12 +29,25 @@ void FindSubStringNaiveTest()
 
 void SearchInListTest()
 {
+	const int target = 6;
 	const size_t size = 5;
 	int t[size] = { 1, 3, 5, 6, 6 };
 	
-	list firstElement;
-	list* first = &firstElement;
+	list* first = new list;
 	CreateList(first, t, size);
 
-	list* result = SearchInList(first, 6);
+	list* result = SearchInList(first, target);
+	if (result == NULL)
+	{
+		std::cout << "No element found";
+	}
+	else
+	{
+		std::cout << "Element is found at follow reference " << result;
+	}
+}
+
+void InsertElementInListTest()
+{
+
 }
