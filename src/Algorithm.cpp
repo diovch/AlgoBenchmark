@@ -54,27 +54,33 @@ void CreateList(list* first, int* numData, size_t size)
 	for (int i = 0; i < size; ++i)
 	{
 		temp->data = numData[i];
-		list* newNode = new list;
-		temp->next = newNode;
-		temp = temp->next;
+		if (i != size - 1)
+		{
+			list* newNode = new list;
+			temp->next = newNode;
+			temp = temp->next;
+		}
 	}
 }
 
-void InsertElementInList(list* first, int data)
+void InsertElementInList(list** first, int data)
 {
 	list* newNode = new list;
-	newNode->next = first;
+	newNode->next = *first;
 	newNode->data = data;
-	first = newNode;
+	*first = newNode;
 }
 
 void PrintListElements(list* first)
 {
 	if (first->next == NULL)
 	{
-		std::cout << std::endl;
+		std::cout << first->data << std::endl;
 		return;
 	}
 	else
+	{
 		std::cout << first->data << " ";
+		PrintListElements(first->next);
+	}
 }

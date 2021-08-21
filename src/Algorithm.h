@@ -9,6 +9,6 @@ list* SearchInList(list* first, int target);
 
 void CreateList(list *first, int *t, size_t size);
 
-void InsertElementInList(list* first, int data);
+void InsertElementInList(list** first, int data);
 
 void PrintListElements(list* first);

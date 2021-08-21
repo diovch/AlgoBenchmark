@@ -6,7 +6,7 @@
 
 int main()
 {
-	SearchInListTest();
+	InsertElementInListTest();
 
 	std::cout << "finished" << std::endl;
 	return 0;
