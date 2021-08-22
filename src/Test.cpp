@@ -53,10 +53,22 @@ void InsertElementInListTest()
 	const int newData = 1000;
 	const size_t size = 5;
 	int t[size] = { 0, -23, 56, 32, 54 };
-	
 	CreateList(first, t, size);
 
 	PrintListElements(first);
 	InsertElementInList(&first, newData);
+	PrintListElements(first);
+}
+
+void EraseElementInListTest()
+{
+	list* first = new list;
+	const size_t size = 5;
+	int t[size] = { 0, -23, 56, 32, 54 };
+	const int deleteTarget = INT_FAST16_MAX;
+	CreateList(first, t, size);
+
+	PrintListElements(first);
+	EraseElementInList(&first, deleteTarget);
 	PrintListElements(first);
 }

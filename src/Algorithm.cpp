@@ -84,3 +84,39 @@ void PrintListElements(list* first)
 		PrintListElements(first->next);
 	}
 }
+
+void EraseElementInList(list** first, int target)
+{
+	list* previous = FindPreviousElement(*first, target);
+	if (previous == *first)
+	{
+		list* secondElement = (*first)->next;
+		delete(*first);
+		*first = secondElement;
+	}
+	else if(previous == NULL)
+	{ }
+	else
+	{
+		list* toDeleteElement = previous->next;
+		previous->next = toDeleteElement->next;
+		delete(toDeleteElement);
+		toDeleteElement = NULL;
+	}
+}
+
+list* FindPreviousElement(list* previous, int target)
+{
+	if (previous->next->data == target || previous->data == target)
+	{
+		return previous;
+	}
+	else if (previous->next->next == NULL)
+	{
+		return NULL;
+	}
+	else
+	{
+		FindPreviousElement(previous->next, target);
+	}
+}

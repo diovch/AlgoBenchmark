@@ -6,7 +6,7 @@
 
 int main()
 {
-	InsertElementInListTest();
+	EraseElementInListTest();
 
 	std::cout << "finished" << std::endl;
 	return 0;
