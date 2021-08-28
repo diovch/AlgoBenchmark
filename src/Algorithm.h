@@ -3,11 +3,17 @@
 
 #include "DataGenerator.h"
 
+int PowInt(int base, int exp);
+
 bool FindSubStringNaive(const std::string text, const std::string subString);
 
-list* SearchInList(list* first, int target);
+int RabinKarpSubStringSearch(const std::string text, const std::string sample);
 
-void CreateList(list *first, int *t, size_t size);
+int GetStringHash(const char* start, const int size, const int hashSize);
+
+bool AreStringsEqual(const char* text, const char* sample, const int size);
+
+list* SearchInList(list* first, int target);
 
 void InsertElementInList(list** first, int data);
 

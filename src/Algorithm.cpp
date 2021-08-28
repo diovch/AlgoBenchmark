@@ -1,6 +1,14 @@
 #include <iostream>
+#include <math.h>
 
 #include "Algorithm.h"
+
+int PowInt(int base, int exp)
+{
+	if (exp == 1)
+		return base;
+	return base * PowInt(base, exp - 1);
+}
 
 bool FindSubStringNaive(const std::string text, const std::string subString)
 {
@@ -12,7 +20,7 @@ bool FindSubStringNaive(const std::string text, const std::string subString)
 			sameCharacterCounter = 1;
 			for (int j = 1; j < subString.size(); ++j)
 			{
-				if (text[enterPosition + j] != subString[j])
+				if (text[(size_t)enterPosition + j] != subString[j])
 				{
 					sameCharacterCounter = 0;
 					break;
@@ -37,6 +45,53 @@ bool FindSubStringNaive(const std::string text, const std::string subString)
 	return false;
 }
 
+int GetStringHash(const char* start, const int stringSize, int maxHashValue)
+{
+	int hash = 0;
+	auto alphabetSizeIncremented = (unsigned int)('a' - 'A') + 1;
+	int temp = 1;
+
+	for (int i = stringSize - 1; i > -1; --i)
+	{
+		hash += (temp * (unsigned int)('a' - start[i])) % maxHashValue;
+		temp *= alphabetSizeIncremented;
+	}
+
+	return hash % maxHashValue;
+}
+
+bool AreStringsEqual(const char* text, const char* sample, const int size)
+{
+	for (int i = 0; i < size; ++i)
+	{
+		if (text[i] != sample[i])
+			return false;
+	}
+	return true;
+}
+
+int RabinKarpSubStringSearch(const std::string text, const std::string sample)
+{// TODO check hash calculating
+	int textSize = text.size(), sampleSize = sample.size();
+	int maxHashValue = textSize;
+	auto alphabetSizeIncremented = (unsigned int)('a' - 'A') + 1;
+	int temp = PowInt(alphabetSizeIncremented, sampleSize);
+
+	int sampleHash = GetStringHash(sample.c_str(), sampleSize, maxHashValue);
+	int subTextHash = GetStringHash(text.c_str(), sampleSize, maxHashValue);
+
+	for (int i = 0; i < textSize - sampleSize; ++i)
+	{
+		if (subTextHash == sampleHash && AreStringsEqual(text.c_str(), sample.c_str(), sampleSize))
+			return i;
+		subTextHash -= temp * (unsigned int)('a' - text[i]);
+		subTextHash *= alphabetSizeIncremented;
+		subTextHash += text[(size_t)i + sampleSize];
+	}
+
+	return -1;
+}
+
 list* SearchInList(list* first, int target)
 {
 	if (first == NULL)
@@ -48,20 +103,6 @@ list* SearchInList(list* first, int target)
 		return SearchInList(first->next, target);
 }
 
-void CreateList(list* first, int* numData, size_t size)
-{
-	list* temp = first;
-	for (int i = 0; i < size; ++i)
-	{
-		temp->data = numData[i];
-		if (i != size - 1)
-		{
-			list* newNode = new list;
-			temp->next = newNode;
-			temp = temp->next;
-		}
-	}
-}
 
 void InsertElementInList(list** first, int data)
 {
@@ -117,6 +158,8 @@ list* FindPreviousElement(list* previous, int target)
 	}
 	else
 	{
-		FindPreviousElement(previous->next, target);
+		return FindPreviousElement(previous->next, target);
 	}
+	// TODO Test this function
+	return NULL;
 }
