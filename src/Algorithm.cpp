@@ -148,6 +148,9 @@ void EraseElementInList(list** first, int target)
 
 list* FindPreviousElement(list* previous, int target)
 {
+
+
+
 	if (previous->next->data == target || previous->data == target)
 	{
 		return previous;
