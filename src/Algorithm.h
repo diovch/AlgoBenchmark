@@ -22,3 +22,7 @@ void PrintListElements(list* first);
 void EraseElementInList(list** first, int target);
 
 list* FindPreviousElement(list* previous, int target);
+
+int LinearSearch(int* data, int size, int value);
+
+int BarierSearch(int* data, int size, int value);

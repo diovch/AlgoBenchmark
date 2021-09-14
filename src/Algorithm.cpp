@@ -148,9 +148,6 @@ void EraseElementInList(list** first, int target)
 
 list* FindPreviousElement(list* previous, int target)
 {
-
-
-
 	if (previous->next->data == target || previous->data == target)
 	{
 		return previous;
@@ -165,4 +162,22 @@ list* FindPreviousElement(list* previous, int target)
 	}
 	// TODO Test this function
 	return NULL;
+}
+
+int LinearSearch(int* data, int size, int value)
+{
+	for (int i = 0; i < size; ++i)
+		if (data[i] == value)
+			return i;
+}
+
+int BarierSearch(int* data, int size, int value)
+{
+	int i = 0;
+	for (i = 0; data[i] != value; ++i){}
+
+	if (i == size - 1)
+		return -1;
+	else
+		return i;
 }

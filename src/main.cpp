@@ -6,11 +6,7 @@
 
 int main()
 {
-	auto alphabetSize = (unsigned int)('a' - 'A');
-	std::string t = "cde";
-	std::string s = "abcdefc";
-	auto ind = RabinKarpSubStringSearch(t, s);
-	auto q = GetStringHash(s.c_str(), s.size(), alphabetSize);
+	SearchElementInArrayTest();
 
 	std::cout << "finished" << std::endl;
 	return 0;

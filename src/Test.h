@@ -7,3 +7,5 @@ void SearchInListTest();
 void InsertElementInListTest();
 
 void EraseElementInListTest();
+
+void SearchElementInArrayTest();
