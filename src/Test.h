@@ -9,3 +9,5 @@ void InsertElementInListTest();
 void EraseElementInListTest();
 
 void SearchElementInArrayTest();
+
+void RabinKarpSubStringSearchTest();

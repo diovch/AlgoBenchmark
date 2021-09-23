@@ -77,9 +77,9 @@ void EraseElementInListTest()
 void SearchElementInArrayTest()
 {
 	int targetValue = 1024;
-	int minDataSize = 1e3;
-	int maxDataSize = 1e7;
-	int step = 1e3;
+	size_t minDataSize = 1e3;
+	size_t maxDataSize = 1e7;
+	size_t step = 1e3;
 	const int conductNumber = (maxDataSize - minDataSize) / step;
 	size_t* sizes = new size_t[conductNumber];
 	double* linearTimes = new double[conductNumber];
@@ -90,6 +90,9 @@ void SearchElementInArrayTest()
 		sizes[iteration] = size;
 		int* data = new int[size + 1]; // index: 0...size, not (size - 1)
 		data[size - 1] = data[size] = targetValue;
+		for (int i = 0; i < size - 2; ++i)
+			data[i] = 100; // chunk value
+
 
 		auto beginTime = high_resolution_clock::now();
 		int linearIndex = LinearSearch(data, size, targetValue);
@@ -102,7 +105,10 @@ void SearchElementInArrayTest()
 		endTime = high_resolution_clock::now();
 
 		barierTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
-
+		
+		if (linearIndex != barierIndex)
+			std::cout << "insert indecies are not equal!!!" << std::endl;
+		
 		delete[] data;
 	}
 
@@ -115,4 +121,16 @@ void SearchElementInArrayTest()
 	f.close();
 
 	delete[] sizes, linearTimes, barierTimes;
+}
+
+void RabinKarpSubStringSearchTest()
+{
+	std::string sample = "abr";
+	std::string text = "abracadabra";
+
+	auto beginTime = high_resolution_clock::now();
+	int i = RabinKarpSubStringSearch(text, sample);
+	auto endTime = high_resolution_clock::now();
+
+	auto d = duration<double, std::milli>{ endTime - beginTime }.count();
 }

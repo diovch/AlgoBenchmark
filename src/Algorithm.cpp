@@ -3,11 +3,13 @@
 
 #include "Algorithm.h"
 
-int PowInt(int base, int exp)
+int PowHashed(int base, int exp, int maxHashValue)
 {
-	if (exp == 1)
-		return base;
-	return base * PowInt(base, exp - 1);
+	int res = 1;
+	for (int i = 0; i < exp; ++i)
+		res = res * base % maxHashValue;
+
+	return res;
 }
 
 bool FindSubStringNaive(const std::string text, const std::string subString)
@@ -45,48 +47,43 @@ bool FindSubStringNaive(const std::string text, const std::string subString)
 	return false;
 }
 
-int GetStringHash(const char* start, const int stringSize, int maxHashValue)
+int GetStringHash(const char* start, int size, int maxHashValue)
 {
 	int hash = 0;
-	auto alphabetSizeIncremented = (unsigned int)('a' - 'A') + 1;
-	int temp = 1;
+	int alphabetSize = 256;
 
-	for (int i = stringSize - 1; i > -1; --i)
-	{
-		hash += (temp * (unsigned int)('a' - start[i])) % maxHashValue;
-		temp *= alphabetSizeIncremented;
-	}
+	for (int i = 0; i < size; ++i)
+		hash = (hash * alphabetSize + start[i]) % maxHashValue;
 
-	return hash % maxHashValue;
+	return hash;
 }
 
-bool AreStringsEqual(const char* text, const char* sample, const int size)
+bool AreStringsEqual(const char* text, const char* sample)
 {
-	for (int i = 0; i < size; ++i)
-	{
-		if (text[i] != sample[i])
+	for (; *sample != '\0'; ++sample, ++text)
+		if (*sample != *text)
 			return false;
-	}
 	return true;
 }
 
 int RabinKarpSubStringSearch(const std::string text, const std::string sample)
-{// TODO check hash calculating
+{
 	int textSize = text.size(), sampleSize = sample.size();
-	int maxHashValue = textSize;
-	auto alphabetSizeIncremented = (unsigned int)('a' - 'A') + 1;
-	int temp = PowInt(alphabetSizeIncremented, sampleSize);
+	int maxHashValue = 101;
+	int alphabetSize = 256;
+	int hashedLeaderWeight = PowHashed(alphabetSize, sampleSize - 1, maxHashValue);
 
 	int sampleHash = GetStringHash(sample.c_str(), sampleSize, maxHashValue);
 	int subTextHash = GetStringHash(text.c_str(), sampleSize, maxHashValue);
 
-	for (int i = 0; i < textSize - sampleSize; ++i)
+	for (int firstLeftIndex = 0; firstLeftIndex < textSize - sampleSize; ++firstLeftIndex)
 	{
-		if (subTextHash == sampleHash && AreStringsEqual(text.c_str(), sample.c_str(), sampleSize))
-			return i;
-		subTextHash -= temp * (unsigned int)('a' - text[i]);
-		subTextHash *= alphabetSizeIncremented;
-		subTextHash += text[(size_t)i + sampleSize];
+		//if (subTextHash == sampleHash && AreStringsEqual(text.c_str(), sample.c_str()))
+		//	return firstLeftIndex;
+		
+		subTextHash = subTextHash + maxHashValue - (unsigned int)text[firstLeftIndex] * hashedLeaderWeight % maxHashValue;
+		subTextHash = (subTextHash * alphabetSize + text[(size_t)firstLeftIndex + sampleSize]);
+		subTextHash %= maxHashValue;
 	}
 
 	return -1;
