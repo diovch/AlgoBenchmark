@@ -76,10 +76,10 @@ int RabinKarpSubStringSearch(const std::string text, const std::string sample)
 	int sampleHash = GetStringHash(sample.c_str(), sampleSize, maxHashValue);
 	int subTextHash = GetStringHash(text.c_str(), sampleSize, maxHashValue);
 
-	for (int firstLeftIndex = 0; firstLeftIndex < textSize - sampleSize; ++firstLeftIndex)
+	for (int firstLeftIndex = 0; firstLeftIndex < textSize - sampleSize + 1; ++firstLeftIndex)
 	{
-		//if (subTextHash == sampleHash && AreStringsEqual(text.c_str(), sample.c_str()))
-		//	return firstLeftIndex;
+		if (subTextHash == sampleHash && AreStringsEqual(text.c_str() + firstLeftIndex, sample.c_str()))
+			return firstLeftIndex;
 		
 		subTextHash = subTextHash + maxHashValue - (unsigned int)text[firstLeftIndex] * hashedLeaderWeight % maxHashValue;
 		subTextHash = (subTextHash * alphabetSize + text[(size_t)firstLeftIndex + sampleSize]);
@@ -177,4 +177,25 @@ int BarierSearch(int* data, int size, int value)
 		return -1;
 	else
 		return i;
+}
+
+void Boyer_MooreSubstringSearch(const std::string text, const std::string sample)
+{
+	auto sampleSize = sample.size();
+	for (size_t position = sampleSize - 1; position >= 0; --position)
+	{
+		if (text[position] != sample[position])
+		{
+			char unmatched = text[position];
+			size_t shift;
+			for (shift = 0; shift < sampleSize; ++shift)
+			{
+				if (unmatched == sample[sampleSize - 1 - shift])
+				{
+					break;
+				}
+			}
+			position += shift;
+		}
+	}
 }

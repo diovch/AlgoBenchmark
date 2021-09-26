@@ -26,3 +26,5 @@ list* FindPreviousElement(list* previous, int target);
 int LinearSearch(int* data, int size, int value);
 
 int BarierSearch(int* data, int size, int value);
+
+void Boyer_MooreSubstringSearch(const std::string text, const std::string sample);

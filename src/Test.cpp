@@ -77,17 +77,17 @@ void EraseElementInListTest()
 void SearchElementInArrayTest()
 {
 	int targetValue = 1024;
-	size_t minDataSize = 1e3;
-	size_t maxDataSize = 1e7;
-	size_t step = 1e3;
-	const int conductNumber = (maxDataSize - minDataSize) / step;
-	size_t* sizes = new size_t[conductNumber];
+	size_t minDataSize = 10;
+	size_t maxDataSize = 1e9;
+	size_t step = 1e7;
+	size_t conductNumber = (maxDataSize - minDataSize) / step;
+	size_t* dataSizes = new size_t[conductNumber];
 	double* linearTimes = new double[conductNumber];
 	double* barierTimes = new double[conductNumber];
 
-	for (size_t size = minDataSize, iteration = 0; size < maxDataSize; size += step, ++iteration)
+	for (size_t size = minDataSize, iteration = 0; iteration < conductNumber; size += step, ++iteration)
 	{
-		sizes[iteration] = size;
+		dataSizes[iteration] = size;
 		int* data = new int[size + 1]; // index: 0...size, not (size - 1)
 		data[size - 1] = data[size] = targetValue;
 		for (int i = 0; i < size - 2; ++i)
@@ -117,16 +117,16 @@ void SearchElementInArrayTest()
 	f.open("experiment.txt", std::ios::out);
 	if (f.is_open())
 		for (int i = 0; i < conductNumber; ++i)
-			f << sizes[i] << " " << linearTimes[i] << " " << barierTimes[i] << std::endl;
+			f << dataSizes[i] << " " << linearTimes[i] << " " << barierTimes[i] << std::endl;
 	f.close();
 
-	delete[] sizes, linearTimes, barierTimes;
+	delete[] dataSizes, linearTimes, barierTimes;
 }
 
 void RabinKarpSubStringSearchTest()
 {
-	std::string sample = "abr";
-	std::string text = "abracadabra";
+	std::string sample = "ada";
+	std::string text = "bracadabr";
 
 	auto beginTime = high_resolution_clock::now();
 	int i = RabinKarpSubStringSearch(text, sample);
