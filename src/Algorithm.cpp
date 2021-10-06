@@ -1,6 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include <set>
+#include <vector>
 
 #include "Algorithm.h"
 
@@ -206,4 +207,27 @@ std::set<size_t> Boyer_MooreSubstringSearch(const std::basic_string<char32_t>& t
 	}
 
 	return enterIndicies;
+}
+
+void swap(int* a, int* b)
+{
+	*a = *a + *b;
+	*b = *a - *b;
+	*a = *a - *b;
+}
+
+void InsertionSort(std::vector<int>& dataArray)
+{
+	for (size_t keyIndex = 1; keyIndex < dataArray.size(); ++keyIndex)
+	{
+		int key = dataArray[keyIndex];
+		int swapIndex = keyIndex - 1;
+
+		while (swapIndex >= 0 && key < dataArray[swapIndex])
+		{
+			dataArray[swapIndex + 1] = dataArray[swapIndex];
+			swapIndex--;
+		}
+		dataArray[swapIndex + 1] = key;
+	}
 }

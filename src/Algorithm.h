@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <set>
+#include <vector>
 
 #include "DataGenerator.h"
 
@@ -29,3 +30,7 @@ int LinearSearch(int* data, int size, int value);
 int BarierSearch(int* data, int size, int value);
 
 std::set<size_t> Boyer_MooreSubstringSearch(const std::basic_string<char32_t>& text, const std::basic_string<char32_t>& sample);
+
+void swap(int* a, int* b);
+
+void InsertionSort(std::vector<int>& dataArray);

@@ -79,3 +79,19 @@ std::basic_string<char32_t> GenerateUTF32String(size_t size)
 	}
 	return res;
 }
+
+std::vector<int> GenerateRandomIntVector(int min, int max, size_t size)
+{
+	std::vector<int> result(size);
+
+	std::random_device rd;  
+	std::mt19937 gen(rd()); 
+	std::uniform_int_distribution<> distrib(min, max);
+	
+	for (auto& num : result)
+	{
+		num = distrib(gen);
+	}
+
+	return result;
+}

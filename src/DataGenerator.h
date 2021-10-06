@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 struct list
 {
@@ -27,3 +28,5 @@ void InsertTreeElement(tree<dataType>** l, dataType item, tree<dataType>* parent
 std::string GenerateDNAString(size_t length);
 
 std::basic_string<char32_t> GenerateUTF32String(size_t size);
+
+std::vector<int> GenerateRandomIntVector(int min, int max, size_t size);
