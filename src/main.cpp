@@ -6,8 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	//SearchElementInArrayTest();
-	RabinKarpSubStringSearchTest();
+	Boyer_MooreSubstringSearchTest();
 
 	std::cout << "finished" << std::endl;
 	return 0;

@@ -1,15 +1,16 @@
 #pragma once
 #include <string>
+#include <set>
 
 #include "DataGenerator.h"
 
 int PowHashed(int base, int exp, int maxHashValue);
 
-bool FindSubStringNaive(const std::string text, const std::string subString);
+std::set<size_t> FindSubStringNaive(const std::basic_string<char32_t>& text, const std::basic_string<char32_t>& sample);
 
-int RabinKarpSubStringSearch(const std::string text, const std::string sample);
+int RabinKarpSubStringSearch(const std::string& text, const std::string& sample);
 
-int GetStringHash(const char* start, const int hashSize);
+int GetStringHash(const char* start, int size, int maxHashValue);
 
 bool AreStringsEqual(const char* text, const char* sample);
 
@@ -27,4 +28,4 @@ int LinearSearch(int* data, int size, int value);
 
 int BarierSearch(int* data, int size, int value);
 
-void Boyer_MooreSubstringSearch(const std::string text, const std::string sample);
+std::set<size_t> Boyer_MooreSubstringSearch(const std::basic_string<char32_t>& text, const std::basic_string<char32_t>& sample);

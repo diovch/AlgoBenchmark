@@ -11,3 +11,5 @@ void EraseElementInListTest();
 void SearchElementInArrayTest();
 
 void RabinKarpSubStringSearchTest();
+
+void Boyer_MooreSubstringSearchTest();

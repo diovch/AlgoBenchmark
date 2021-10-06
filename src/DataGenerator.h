@@ -25,3 +25,5 @@ template <typename dataType>
 void InsertTreeElement(tree<dataType>** l, dataType item, tree<dataType>* parent);
 
 std::string GenerateDNAString(size_t length);
+
+std::basic_string<char32_t> GenerateUTF32String(size_t size);

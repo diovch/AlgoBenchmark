@@ -65,3 +65,17 @@ std::string GenerateDNAString(size_t length)
 
 	return result;
 }
+
+std::basic_string<char32_t> GenerateUTF32String(size_t size)
+{
+	std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	std::uniform_int_distribution<uint32_t> distrib(1, UINT32_MAX);
+	char32_t c = static_cast<char32_t>(UINT32_MAX-1);
+	std::basic_string<char32_t> res(size, U'j');
+	for (char32_t symb : res)
+	{
+		res = (char32_t)distrib(gen);
+	}
+	return res;
+}

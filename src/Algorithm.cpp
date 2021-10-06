@@ -1,5 +1,6 @@
 #include <iostream>
 #include <math.h>
+#include <set>
 
 #include "Algorithm.h"
 
@@ -12,39 +13,28 @@ int PowHashed(int base, int exp, int maxHashValue)
 	return res;
 }
 
-bool FindSubStringNaive(const std::string text, const std::string subString)
+std::set<size_t> FindSubStringNaive(const std::basic_string<char32_t>& text, const std::basic_string<char32_t>& sample)
 {
-	int sameCharacterCounter = 0;
-	for (int enterPosition = 0; enterPosition < text.size() - subString.size(); ++enterPosition)
+	size_t textSize = text.size(), sampleSize = sample.size();
+	std::set<size_t> enterIndicies;
+	
+	for (size_t textPosition = 0; textPosition <= textSize - sampleSize; ++textPosition)
 	{
-		if (text[enterPosition] == subString[0])
+		for (size_t samplePosition = 0; samplePosition < sampleSize; ++samplePosition)
 		{
-			sameCharacterCounter = 1;
-			for (int j = 1; j < subString.size(); ++j)
+			if (sample[samplePosition] != text[textPosition + samplePosition])
 			{
-				if (text[(size_t)enterPosition + j] != subString[j])
-				{
-					sameCharacterCounter = 0;
-					break;
-				}
-				else
-				{
-					sameCharacterCounter++;
-				}
-			}
-
-			if (sameCharacterCounter != subString.size())
-			{
-				continue;
+				break;
 			}
 			else
 			{
-				return true;
+				if (samplePosition == sampleSize - 1)
+					enterIndicies.insert(textPosition);
 			}
 		}
 	}
-	
-	return false;
+
+	return enterIndicies;
 }
 
 int GetStringHash(const char* start, int size, int maxHashValue)
@@ -66,7 +56,7 @@ bool AreStringsEqual(const char* text, const char* sample)
 	return true;
 }
 
-int RabinKarpSubStringSearch(const std::string text, const std::string sample)
+int RabinKarpSubStringSearch(const std::string& text, const std::string& sample)
 {
 	int textSize = text.size(), sampleSize = sample.size();
 	int maxHashValue = 101;
@@ -179,23 +169,41 @@ int BarierSearch(int* data, int size, int value)
 		return i;
 }
 
-void Boyer_MooreSubstringSearch(const std::string text, const std::string sample)
+std::set<size_t> Boyer_MooreSubstringSearch(const std::basic_string<char32_t>& text, const std::basic_string<char32_t>& sample)
 {
-	auto sampleSize = sample.size();
-	for (size_t position = sampleSize - 1; position >= 0; --position)
+	size_t sampleSize = sample.size();
+	size_t textSize = text.size();
+
+	std::set<size_t> enterIndicies;
+
+	for (size_t textPosition = 0; textPosition <= textSize - sampleSize;)
 	{
-		if (text[position] != sample[position])
+		for (size_t samplePosition = sampleSize - 1; samplePosition >= 0; --samplePosition)
 		{
-			char unmatched = text[position];
-			size_t shift;
-			for (shift = 0; shift < sampleSize; ++shift)
+			if (sample[samplePosition] == text[textPosition + samplePosition])
 			{
-				if (unmatched == sample[sampleSize - 1 - shift])
+				if (samplePosition == 0)
 				{
+					enterIndicies.insert(textPosition);
+					textPosition++;
 					break;
 				}
 			}
-			position += shift;
+			else
+			{
+				char32_t unmatched = text[textPosition + samplePosition];
+
+				size_t shift;
+				for (shift = 1; shift <= samplePosition; ++shift)
+					if (unmatched == sample[samplePosition - shift])
+						break;
+				
+				textPosition += shift;
+
+				break;
+			}
 		}
 	}
+
+	return enterIndicies;
 }

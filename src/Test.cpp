@@ -1,6 +1,8 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
+#include <set>
+#include <string>
 
 #include "Test.h"
 #include "DataGenerator.h"
@@ -16,8 +18,8 @@ void FindSubStringNaiveTest()
 
 	//const std::string& text = GenerateString(textLength);
 	//const std::string subString = GenerateString(subStringLength);
-	const std::string text = "atgccgta";
-	const std::string subString = "ccgt";
+	const std::basic_string<char32_t> text = U"atgccgta";
+	const std::basic_string<char32_t> subString = U"ccgt";
 
 	auto t1 = high_resolution_clock::now();
 	FindSubStringNaive(text, subString);
@@ -133,4 +135,57 @@ void RabinKarpSubStringSearchTest()
 	auto endTime = high_resolution_clock::now();
 
 	auto d = duration<double, std::milli>{ endTime - beginTime }.count();
+}
+
+void Boyer_MooreSubstringSearchTest()
+{
+	typedef std::basic_string<char32_t> stringUTF32;
+	typedef std::basic_ifstream<char32_t> u32_ifstream;
+
+	//stringUTF32 sample = U"Уыртр";
+	stringUTF32 text(3e6, '\0');
+
+	u32_ifstream textFile;
+	textFile.open("dead_souls.txt");
+	if (textFile.is_open())
+	{
+		char32_t c;
+		for (size_t textPosition = 0; textPosition < text.size() && textFile.get(c); ++textPosition)
+			text[textPosition] = c;
+	}
+	textFile.close();
+
+	size_t count = 0;
+	for (size_t i = 0; text[i] != U'\0'; ++i)
+		count++;
+
+	size_t conductNumber = 200;
+	double* boyerTimes = new double[conductNumber];
+	double* naiveTimes = new double[conductNumber];
+	size_t* sampleSizes = new size_t[conductNumber];
+	for(size_t sampleSize = 4, iteration = 0; iteration < conductNumber; sampleSize += 10000, ++iteration)
+	{
+		sampleSizes[iteration] = sampleSize;
+		std::basic_string<char32_t> sample(sampleSize, U'р');
+		//std::basic_string<char32_t> sample = U"Уыртр";
+
+		auto beginTime = std::chrono::steady_clock::now();
+		std::set<size_t> boyerIndicies = Boyer_MooreSubstringSearch(text, sample);
+		auto endTime = std::chrono::steady_clock::now();
+
+		boyerTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
+
+		beginTime = std::chrono::steady_clock::now();
+		std::set<size_t> naiveIndicies = FindSubStringNaive(text, sample);
+		endTime = std::chrono::steady_clock::now();
+
+		//bool correct = (boyerIndicies == naiveIndicies);
+		naiveTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
+	}
+
+	std::ofstream resultFile;
+	resultFile.open("result.txt", std::ios::out);
+	for (int i = 0; i < conductNumber; ++i)
+		resultFile << sampleSizes[i] << " " << boyerTimes[i] << " " << naiveTimes[i] << std::endl;
+	resultFile.close();
 }
