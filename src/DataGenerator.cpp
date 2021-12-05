@@ -1,7 +1,9 @@
 #include <random>
 #include <string>
+#include <list>
 
 #include "DataGenerator.h"
+#include "Algorithm.h"
 
 void CreateList(list* first, int* numData, size_t size)
 {
@@ -94,4 +96,32 @@ std::vector<int> GenerateRandomIntVector(int min, int max, size_t size)
 	}
 
 	return result;
+}
+
+
+
+void GenerateExperimentStand(std::list<std::vector<int>>& experimentStand, std::vector<int>& initialData)
+{
+	std::vector<int> sorted(initialData.begin(), initialData.end());
+	std::sort(sorted.begin(), sorted.end());
+
+	experimentStand.push_back(initialData);
+	
+	std::vector<int>& minBubblePassed = GetBublePassedVector(initialData, ComparisonType::MIN);
+	
+	while (minBubblePassed != sorted)
+	{
+		minBubblePassed = GetBublePassedVector(minBubblePassed, ComparisonType::MIN);
+		experimentStand.push_back(minBubblePassed);
+	}
+
+	std::vector<int>& maxBubblePassed = GetBublePassedVector(initialData, ComparisonType::MAX);
+	
+	sorted = std::vector<int>{ sorted.rbegin(), sorted.rend() };
+	while (maxBubblePassed != sorted)
+	{
+		maxBubblePassed = GetBublePassedVector(maxBubblePassed, ComparisonType::MAX);
+		experimentStand.push_front(maxBubblePassed);
+	}
+	bool mistake = (minBubblePassed == maxBubblePassed);
 }

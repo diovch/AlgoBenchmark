@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <list>
 
 struct list
 {
@@ -30,3 +31,5 @@ std::string GenerateDNAString(size_t length);
 std::basic_string<char32_t> GenerateUTF32String(size_t size);
 
 std::vector<int> GenerateRandomIntVector(int min, int max, size_t size);
+
+void GenerateExperimentStand(std::list<std::vector<int>>& experimentStand, std::vector<int>& initialData);

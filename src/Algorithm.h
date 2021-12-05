@@ -2,6 +2,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <list>
 
 #include "DataGenerator.h"
 
@@ -34,3 +35,32 @@ std::set<size_t> Boyer_MooreSubstringSearch(const std::basic_string<char32_t>& t
 void swap(int* a, int* b);
 
 void InsertionSort(std::vector<int>& dataArray);
+
+enum ComparisonType
+{
+	MIN,
+	MAX
+};
+
+
+std::vector<int> GetBublePassedVector(std::vector<int>& v, enum ComparisonType compType);
+
+size_t GetParent(size_t i);
+size_t GetLeft(size_t i);
+size_t GetRight(size_t i);
+
+void Heapify(std::vector<int>& dataArray, size_t heapsize, size_t rootInd);
+
+void HeapSort(std::vector<int>& dataArray);
+
+void mergesort(std::vector<int>& data, int l, int r);
+
+void merge(std::vector<int>& data, int l, int m, int r);
+
+void perm(std::vector<int>& ar, std::vector<std::vector<float>>& dists, int lf);
+
+float dist(std::vector<int>& ar, std::vector<std::vector<float>>& dists);
+
+void print(std::vector<int>& ar, std::vector<std::vector<float>>& dists);
+
+void swap(std::vector<int>& ar, int i, int j);
