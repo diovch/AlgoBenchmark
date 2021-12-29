@@ -125,3 +125,46 @@ void GenerateExperimentStand(std::list<std::vector<int>>& experimentStand, std::
 	}
 	bool mistake = (minBubblePassed == maxBubblePassed);
 }
+
+void GenerateCityMap(std::vector<std::vector<float>>& cityDistances, std::vector<float>& xCoord, std::vector<float>& yCoord)
+{
+	size_t cityNumber = xCoord.size();
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> distrib(-10., 10.);
+
+	for (size_t i = 0; i < cityNumber; i++)
+	{
+		xCoord[i] = distrib(gen);
+		yCoord[i] = distrib(gen);
+	}
+
+	for (size_t i = 0; i < cityNumber; i++)
+	{
+		for (size_t j = 0; j < cityNumber; j++)
+		{
+			if (i == j) cityDistances[i][j] = 0;
+			else
+			{
+				auto xDiff = xCoord[i] - xCoord[j];
+				auto yDiff = yCoord[i] - yCoord[j];
+
+				auto xDiffSquared = xDiff * xDiff;
+				auto yDiffSquared = yDiff * yDiff;
+
+				auto lenght = std::sqrt(xDiffSquared + yDiffSquared);
+
+				cityDistances[i][j] = cityDistances[j][i] = lenght;
+			}
+		}
+	}
+}
+
+int GenerateIntNum(int min, int max)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib(min, max);
+	return distrib(gen);
+}

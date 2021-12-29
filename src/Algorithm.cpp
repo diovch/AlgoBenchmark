@@ -4,6 +4,8 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
+#include <string>
 
 #include "Algorithm.h"
 
@@ -40,15 +42,60 @@ std::set<size_t> FindSubStringNaive(const std::basic_string<char32_t>& text, con
 	return enterIndicies;
 }
 
-int GetStringHash(const char* start, int size, int maxHashValue)
+unsigned int GetStringHash(const char* start, int size, int maxHashValue)
 {
-	int hash = 0;
+	unsigned int hash = 0;
 	int alphabetSize = 256;
 
 	for (int i = 0; i < size; ++i)
 		hash = (hash * alphabetSize + start[i]) % maxHashValue;
 
 	return hash;
+}
+
+unsigned int GetStringHash(const wchar_t* start, unsigned int size, unsigned int maxHashValue)
+{
+	unsigned int hash = 0;
+	unsigned int alphabetSize = (int)1 << (8 * sizeof(wchar_t));
+
+	for (int i = 0; i < size; ++i)
+		hash = (hash * alphabetSize + (unsigned int)start[i]) % maxHashValue;
+
+	return hash;
+}
+
+unsigned long
+DanBernsteinHash(unsigned char* str)//Dan Bernstein
+{
+	unsigned long hash = 5381;
+	int c;
+
+	while (c = *str++)
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+	return hash;
+}
+
+int GetNaiveStringHash(std::string& str)
+{
+	int hash = 0;
+	int alphabetSize = 256;
+
+	for (const auto& sym : str)
+		//hash += (hash * alphabetSize + sym);
+		hash += (int)sym;
+
+	return hash;
+}
+
+std::string GenerateRandomString(int size)
+{
+	std::string res(size, '\0');
+
+	for (auto& sym : res)
+		sym = (unsigned char)GenerateIntNum(1, 127);
+
+	return res;
 }
 
 bool AreStringsEqual(const char* text, const char* sample)
@@ -323,51 +370,80 @@ void mergesort(std::vector<int>& data, int l, int r)
 	merge(data, l, m, r);
 }
 
-void merge(std::vector<int>& data, int l, int m, int r)
+void merge(std::vector<int>& data, int left, int separator, int right)
 {
 	std::vector<int> temp(data.size());
-
+	
 	int i, j;
-	for (i = m + 1; i > l; i--) temp[i - 1] = data[i - 1];
-	for (j = m; j < r; j++) temp[r + m - j] = data[j + 1];
+	for (i = separator + 1; i > left; i--) // копирование левой части
+		temp[i - 1] = data[i - 1];
+	
+	for (j = separator; j < right; j++) 
+		temp[right + separator - j] = data[j + 1]; // копирование правой части
 
-	for (int k = l; k <= r; k++)
+	for (int k = left; k <= right; k++) // слияние
 		if (temp[j] < temp[i])
-			data[k] = temp[j--];
+		{
+			data[k] = temp[j];
+			j--;
+		}
 		else
-			data[k] = temp[i++];
+		{
+			data[k] = temp[i];
+			i++;
+		}
 }
 
-void perm(std::vector<int>& ar, std::vector<std::vector<float>>& dists,  int lf)
+
+
+void perm(std::vector<int>& cityIndicies, std::vector<std::vector<float>>& cityDistances,  int lf, float* minDistance, size_t* count)
 {
-	if (lf >= ar.size()) 
+	if (lf >= cityIndicies.size()) 
 	{                           // перестановки окончены
-		print(ar, dists);                // выводим перестановку
+		//print(cityIndicies, cityDistances);                // выводим перестановку
+		float currentDistance = dist(cityIndicies, cityDistances);
+		
+		//if (currentDistance <= *minDistance) 
+		{
+			(*count)++;
+			*minDistance = currentDistance;
+		}
 		return;
 	}
 
-	perm(ar, dists, lf + 1);                                // перестановки элементов справа от lf
-	for (size_t i = lf + 1; i < ar.size(); i++) 
+	perm(cityIndicies, cityDistances, lf + 1, minDistance, count); // перестановки элементов справа от lf
+	for (size_t i = lf + 1; i < cityIndicies.size(); i++) 
 	{           // теперь каждый элемент ar[i], i > lf
-		swap(ar, lf, i);                            // меняем местами с ar[lf]
-		perm(ar, dists, lf + 1);                            // и снова переставляем всё справа
-		swap(ar, lf, i);                            // возвращаем элемент ar[i] назад
+		swap(cityIndicies, lf, i);                            // меняем местами с ar[lf]
+		perm(cityIndicies, cityDistances, lf + 1, minDistance, count);  // и снова переставляем всё справа
+		swap(cityIndicies, lf, i);                            // возвращаем элемент ar[i] назад
 	}
 }
 
-float dist(std::vector<int>& ar, std::vector<std::vector<float>>& dists)
+float dist(std::vector<int>& cityIndicies, std::vector<std::vector<float>>& cityDistances)
 {
-	float distance = 0.;
-	for (int i = 0; i < ar.size() - 1; i++)
-		distance += dists[ar[i]][ar[i + 1]];
+	// расстояние между первым и последним городом
+	float distance = cityDistances[cityIndicies[0] - 1][cityIndicies[cityIndicies.size() - 1] - 1]; 
+
+	for (int i = 0; i < cityIndicies.size() - 1; i++)
+	{
+		int firstCity = cityIndicies[i] - 1;
+		int secondCity = cityIndicies[i + 1] - 1;
+		distance += cityDistances[firstCity][secondCity];
+	}
+		
 	return distance;
 }
 
-void print(std::vector<int>& ar, std::vector<std::vector<float>>& dists)
+void print(std::vector<int>& cityIndicies, std::vector<std::vector<float>>& cityDistances)
 {
-	for (auto& v : ar)
+	std::cout << "Cities route ";
+	
+	for (auto& v : cityIndicies)
 		std::cout << v << " ";
-	std::cout << std::endl << dist(ar, dists);
+	
+	std::cout << std::endl << "Distance of the route ";
+	std::cout << dist(cityIndicies, cityDistances) << std::endl;
 }
 
 void swap(std::vector<int>& ar, int i, int j)
@@ -375,4 +451,141 @@ void swap(std::vector<int>& ar, int i, int j)
 	int temp = ar[i];
 	ar[i] = ar[j];
 	ar[j] = temp;
+}
+
+void QuickSort(std::vector<int>& array, int low, int high)
+{
+	int i = low;
+	int j = high;
+	int pivot = array[(i + j) / 2];
+	int temp;
+
+	while (i <= j)
+	{
+		while (array[i] < pivot)
+			i++;
+		while (array[j] > pivot)
+			j--;
+		if (i <= j)
+		{
+			temp = array[i];
+			array[i] = array[j];
+			array[j] = temp;
+			i++;
+			j--;
+		}
+	}
+	if (j > low)
+		QuickSort(array, low, j);
+	if (i < high)
+		QuickSort(array, i, high);
+}
+
+void MultiPhaseSort(std::vector<int>& ar)
+{
+	size_t numberOfBlocks = 10;
+	size_t numberOfBlockElements = ar.size() / numberOfBlocks;
+	
+
+	for (size_t i = 0; 
+		i <= ar.size() - 2; 
+		i += numberOfBlockElements)
+	{
+		size_t j = (ar.size() - i > numberOfBlockElements) ? (i + numberOfBlockElements - 1) : (ar.size() - 1);
+		QuickSort(ar, i, j);
+	}
+
+	size_t left = 0;
+	size_t separator = left + numberOfBlockElements - 1;
+	//size_t right = (ar.size() - separator > numberOfBlockElements) ? (separator + numberOfBlockElements) : (ar.size() - 1);
+
+	while (separator <= ar.size() - 2)
+	{
+		size_t right = (ar.size() - separator > numberOfBlockElements) ? (separator + numberOfBlockElements) : (ar.size() - 1);
+		merge(ar, left, separator, right);
+
+		separator += numberOfBlockElements;
+	}
+}
+
+void DFS(int cityIndex, std::vector<std::vector<bool>>& isRoadExists, std::vector<bool>& isVisited)
+{
+	isVisited[cityIndex] = true;
+
+	for (int neighborIndex = 0; neighborIndex < isRoadExists[cityIndex].size(); neighborIndex++)
+	{
+		bool isNeighbor = isRoadExists[cityIndex][neighborIndex];
+
+		if (!isNeighbor || isVisited[neighborIndex] || neighborIndex == cityIndex)
+			continue;
+		
+		DFS(neighborIndex, isRoadExists, isVisited);
+	}
+}
+
+bool IsOneComponent(std::vector<std::vector<bool>>& isRoadExists)
+{
+	std::vector<bool> isVisited(isRoadExists[0].size(), false);
+
+	DFS(0, isRoadExists, isVisited); // если компонента одна то мы посетим все вершины за один проход
+
+	if (isVisited == std::vector<bool>(isVisited.size(), true))
+		return true;
+	else
+		return false;
+
+	//for (int i = 0; i < isVisited.size(); i++)
+	//{
+	//	if (!isVisited[i])
+	//		DFS(i, isRoadExists, isVisited);
+	//}
+}
+
+int GetNumberOfConnections(std::vector<std::vector<bool>>& isRoadExists)
+{
+	int res = 0;
+	for (int i = 0; i < isRoadExists.size(); i++)
+		for (int j = 0; j < i; j++)
+			if (isRoadExists[i][j])
+				res++;
+
+	return res;
+}
+
+float GetMinDistance(std::vector<std::vector<float>>& cityDistances, std::vector<std::vector<bool>>& isRoadExists, int& count)
+{
+	float minDistance = FLT_MAX;
+
+	std::vector<int> cityIndicies(isRoadExists.size());
+	for (int i = 0; i < cityIndicies.size(); i++) 
+		cityIndicies[i] = i;
+
+	do
+	{
+		//if (!isRoadExists[cityIndicies[0]][*(cityIndicies.end() - 1)])
+		//	continue;
+
+		float temp = 0.;
+		//float temp = cityDistances[cityIndicies[0]][*(cityIndicies.end() - 1)];
+
+		for (auto cityIndexIt = cityIndicies.begin(); cityIndexIt != (cityIndicies.end() - 1); cityIndexIt++)
+		{
+			count++;
+			if (!isRoadExists[*cityIndexIt][*(cityIndexIt + 1)])
+			{
+				temp = -1.;
+				break;
+			}
+			else
+				temp += cityDistances[*cityIndexIt][*(cityIndexIt + 1)];
+		}
+
+		if (temp < 0.)
+			continue;
+		if (temp < minDistance)
+			minDistance = temp;
+	} 
+	while (std::next_permutation(cityIndicies.begin(), cityIndicies.end()));
+
+	return minDistance;
 }

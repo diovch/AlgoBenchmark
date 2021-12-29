@@ -2,15 +2,21 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include <map>
 #include <string>
 #include <list>
 #include <algorithm>
 #include <sstream>
 #include <random>
+#include <numeric>
 
 #include "Test.h"
 #include "DataGenerator.h"
 #include "Algorithm.h"
+#include "RBTree.h"
+#include "TwoThreeTree.h"
+#include "2_3tree.h"
+#include "SalesMan.h"
 
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
@@ -167,7 +173,7 @@ void Boyer_MooreSubstringSearchTest()
 	double* boyerTimes = new double[conductNumber];
 	double* naiveTimes = new double[conductNumber];
 	size_t* sampleSizes = new size_t[conductNumber];
-	for(size_t sampleSize = 4, iteration = 0; iteration < conductNumber; sampleSize += 1e4, ++iteration)
+	for(size_t sampleSize = 4, iteration = 0; iteration < conductNumber; sampleSize += 1e3, ++iteration)
 	{
 		sampleSizes[iteration] = sampleSize;
 		std::basic_string<char32_t> sample(sampleSize, U'ъ');
@@ -197,11 +203,12 @@ void Boyer_MooreSubstringSearchTest()
 }
 
 void BMSubstringSearch()
+// with fix lenght of sample and varience of lenght of text
 {
 	typedef std::basic_string<char32_t> stringUTF32;
 	typedef std::basic_ifstream<char32_t> u32_ifstream;
 	
-	stringUTF32 sample(1e6 - 2, U'р');
+	stringUTF32 sample(1e3 - 2, U'р');
 	
 	stringUTF32 fullText(3e6, U'\0');
 	
@@ -294,10 +301,9 @@ void AveragingTest()
 }
 
 void SortingTest()
-// Comparision of Insertion sort and Heap sort
 {
-	SortingTestWithExperimentStand();
 	SortingTestWithTimeMeasurment();
+	SortingTestWithExperimentStand();
 }
 
 void SortingTestWithTimeMeasurment()
@@ -316,7 +322,7 @@ void SortingTestWithTimeMeasurment()
 
 		std::vector<int> sample(data);
 		auto beginTime = std::chrono::steady_clock::now();
-		InsertionSort(sample);
+		MultiPhaseSort(sample);
 		auto endTime = std::chrono::steady_clock::now();
 
 		insertionTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
@@ -324,7 +330,7 @@ void SortingTestWithTimeMeasurment()
 		sample = std::vector<int>(data);
 
 		beginTime = std::chrono::steady_clock::now();
-		HeapSort(sample);
+		mergesort(sample, 0, sample.size() - 1);
 		endTime = std::chrono::steady_clock::now();
 
 		heapTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
@@ -332,7 +338,7 @@ void SortingTestWithTimeMeasurment()
 
 	std::ofstream sortingTimeResults;
 	sortingTimeResults.open("SortingTime.txt");
-	sortingTimeResults << "Data Size," << "Insertion Sort," << "Heap Sort" << std::endl;
+	sortingTimeResults << "Data Size," << "Multiphase Sort," << "Merge Sort" << std::endl;
 	for (size_t dataSize = minDataSize, iteration = 0; 
 		dataSize < maxDataSize && iteration < measurmentCount;
 		dataSize += stepDataSize, iteration++)
@@ -355,14 +361,14 @@ void SortingTestWithExperimentStand()
 	{
 		std::vector<int> sample(v);
 		auto beginTime = std::chrono::steady_clock::now();
-		InsertionSort(sample);
+		MultiPhaseSort(sample);
 		auto endTime = std::chrono::steady_clock::now();
 
 		insertionTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
 
 		sample = std::vector<int>(v);
 		beginTime = std::chrono::steady_clock::now();
-		HeapSort(sample);
+		mergesort(sample, 0, sample.size() - 1);
 		endTime = std::chrono::steady_clock::now();
 
 		heapTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
@@ -371,7 +377,7 @@ void SortingTestWithExperimentStand()
 
 	std::ofstream expStandResults;
 	expStandResults.open("SortingExperimentalStand.txt");
-	expStandResults << "Sample number," << "Insertion Sort," << "Heap Sort" << std::endl;
+	expStandResults << "Sample number," << "Multiphase Sort," << "Merge Sort" << std::endl;
 	for (size_t sampleNum = 0; sampleNum < experimentStand.size(); ++sampleNum)
 		expStandResults << sampleNum << " " << insertionTimes[sampleNum] << " " << heapTimes[sampleNum] << std::endl;
 	expStandResults.close();
@@ -388,40 +394,337 @@ void MergesSortTest()
 	bool isSorted = std::is_sorted(initialData.begin(), initialData.end());
 }
 
-void SalesManProblem(int cityNumber)
+
+void SalesManProblem(int maxCityNumber)
 {
-	std::vector<std::vector<float>> cityMap(cityNumber, std::vector<float>(cityNumber, 0.));
-	std::vector<float> xCoord(cityNumber, 0.), yCoord(cityNumber, 0.);
-
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> distrib(-10., 10.);
-
-	for (size_t i = 0; i < cityNumber; i++)
+	auto minCityNumber = 3;
+	std::vector<int> counts(maxCityNumber - minCityNumber + 1), cityNumbers(maxCityNumber - minCityNumber + 1);
+	for (int cityNumber = minCityNumber; cityNumber <= maxCityNumber; cityNumber++)
 	{
-		xCoord[i] = distrib(gen);
-		yCoord[i] = distrib(gen);
+		std::vector<std::vector<float>> cityDistances(cityNumber, std::vector<float>(cityNumber, 0.));
+		std::vector<float> xCoord(cityNumber, 0.), yCoord(cityNumber, 0.);
+
+		GenerateCityMap(cityDistances, xCoord, yCoord);
+
+		std::vector<int> cityIndicies(cityNumber);
+
+		std::vector<bool> used(cityNumber, false);
+		float minDistance = FLT_MAX;
+		size_t routeCount = 0;
+
+		rec(cityDistances, cityIndicies, used, minDistance, 1, cityNumber, 0., routeCount);
+
+		std::cout << routeCount << " attempts" << std::endl;
+		counts[cityNumber - minCityNumber] = routeCount;
+		cityNumbers[cityNumber - minCityNumber] = cityNumber;
+		std::cout << minDistance << " distance" << std::endl;
 	}
 
-	for (size_t i = 0; i < cityNumber; i++)
+	std::ofstream resultStream;
+	resultStream.open("one_dependency.txt");
+	resultStream << "City number," << "Route proposals" << std::endl;
+	for (size_t i = 0; i < counts.size(); ++i)
+		resultStream << cityNumbers[i] << " " << counts[i]<< std::endl;
+	resultStream.close();
+}
+
+void SalesManProblemConnectivity(int cityNumber)
+{
+	std::vector<std::vector<float>> cityDistances(cityNumber, std::vector<float>(cityNumber, 0.));
+	std::vector<float> xCoord(cityNumber, 0.), yCoord(cityNumber, 0.);
+	GenerateCityMap(cityDistances, xCoord, yCoord);
+
+	std::vector<std::vector<bool>> isRoadExists(cityNumber, std::vector<bool>(cityNumber, false));
+	int totalNumberOfConnections = cityNumber * (cityNumber - 1) / 2;
+
+	while (!IsOneComponent(isRoadExists))
 	{
-		for (size_t j = 0; j < cityNumber; j++)
+		int i = 0, j = 0;
+		while (i == j || isRoadExists[i][j])
 		{
-			if (i == j) cityMap[i][j] = 0;
-			else
-			{
-				auto xDiff = xCoord[i] - xCoord[j];
-				auto yDiff = yCoord[i] - yCoord[j];
+			i = GenerateIntNum(0, cityNumber - 1);
+			j = GenerateIntNum(0, cityNumber - 1);
+		}
+		isRoadExists[j][i] = isRoadExists[i][j] = true;
+	}
+	// тут будет достигнута минимальная связность
 
-				auto xDiffSquared = xDiff * xDiff;
-				auto yDiffSquared = yDiff * yDiff;
+	std::vector<float> minDistances, connectivityFactor;
+	std::vector<int> counts;
+	int currentNumOfConnections = GetNumberOfConnections(isRoadExists);
 
-				auto lenght = std::sqrt(xDiffSquared + yDiffSquared);
+	while (currentNumOfConnections != totalNumberOfConnections)
+	{
+		int count = 0;
+		minDistances.push_back(GetMinDistance(cityDistances, isRoadExists, count));
+		counts.push_back(count);
+		connectivityFactor.push_back((float)currentNumOfConnections / totalNumberOfConnections);
 
-				cityMap[i][j] = cityMap[j][i] = lenght;
-			}
+		int i = 0, j = 0;
+		while (i == j || isRoadExists[i][j])
+		{
+			i = GenerateIntNum(0, cityNumber - 1);
+			j = GenerateIntNum(0, cityNumber - 1);
+		}
+		
+		isRoadExists[j][i] = isRoadExists[i][j] = true;
+		currentNumOfConnections++;
+	}
+
+
+	std::ofstream resultStream;
+	resultStream.open("one_dependency.txt");
+	resultStream << "Connectivity factor," << "Counts" << std::endl;
+	for (size_t i = 0; i < minDistances.size(); ++i)
+		resultStream << connectivityFactor[i] << " " << counts[i] << std::endl;
+	resultStream.close();
+}
+
+
+
+void TreeComparision()
+{
+	size_t MegaByte = 1024 * 1024;
+	size_t bufferSize = 13 * MegaByte;  // all file is 14 Mb
+	std::wstring wordBuffer(bufferSize, '\0');
+
+	std::ifstream wordStream;
+	wordStream.open("HarryPotterBooks.txt");
+	size_t textPosition = 0;
+	if (wordStream.is_open())
+	{
+		char sym;
+
+		while(wordStream && textPosition < wordBuffer.size())
+		{
+			wordStream.get(sym);
+			wordBuffer[textPosition] = sym;
+			textPosition++;
 		}
 	}
+	wordStream.close();
+
+	std::vector<float> textSizes;
+	std::vector<float> timesRedBlack, timeTwoThree;
+
+	for (size_t textSize = 1 * MegaByte; 
+		textSize < wordBuffer.size(); 
+		textSize += 0.2 * MegaByte)
+	{
+		std::wstring wordSubBuffer(wordBuffer.begin(), wordBuffer.begin() + textSize);
+		textSizes.push_back((float)textSize / MegaByte);
+
+		RBTree<std::wstring> RedBlackTree;
+		//std::map<std::string, size_t> mapTree;
+		std::wistringstream RBstream(wordSubBuffer);
+
+		auto beginTime = std::chrono::steady_clock::now();
+		while (RBstream)
+		{
+			std::wstring temp;
+			RBstream >> temp;
+
+			//auto it = mapTree.find(temp);
+			//if (it != mapTree.end())
+			//	(*it).second++;
+			//else
+			//	mapTree[temp] = 1;
+
+			auto foundNode = RedBlackTree.search(temp);
+			if (foundNode)
+				foundNode->occurenceFrequency++;
+			else
+				RedBlackTree.insert(temp);
+		}
+		auto endTime = std::chrono::steady_clock::now();
+		auto t1 = duration<float, std::milli>{ endTime - beginTime }.count();
+		timesRedBlack.push_back(t1);
+		//RedBlackTree.~RBTree();
+
+		tree2_3::Tree<std::wstring> tree23;
+		std::wistringstream stream23(wordSubBuffer);
+
+		beginTime = std::chrono::steady_clock::now();
+		while (stream23)
+		{
+			std::wstring temp;
+			stream23 >> temp;
+
+			auto wantedElement = tree23.find(temp);
+			if (wantedElement)
+				wantedElement->frequency++;
+			else
+				tree23.insert(temp);
+		}
+		endTime = std::chrono::steady_clock::now();
+		auto t2 = duration<float, std::milli>{ endTime - beginTime }.count();
+		timeTwoThree.push_back(t2);
+		//tree23.~Tree();
+
+		//std::istringstream TwoThreeStream(wordSubBuffer);
+		//std::string firstWord; TwoThreeStream >> firstWord;
+
+		//TwoThreeNode* root = new TwoThreeNode(GetNaiveStringHash(firstWord));
+		//auto wordCounter = 0;
+		//beginTime = std::chrono::steady_clock::now();
+		//while (TwoThreeStream)
+		//{
+		//	std::string temp;
+		//	TwoThreeStream >> temp;
+		//	wordCounter++;
+
+		//	auto foundNode = search(root, GetNaiveStringHash(temp));
+		//	if (foundNode)
+		//		foundNode->occurenceFrequency++;
+		//	else
+		//	{
+		//		root = insert(root, GetNaiveStringHash(temp));
+		//	}
+		//}
+		//endTime = std::chrono::steady_clock::now();
+		//auto t2 = duration<float, std::milli>{ endTime - beginTime }.count();
+		//timeTwoThree.push_back(t2);
+		//removeAll(root);
+
+	}
+
+	std::ofstream resultStream;
+	resultStream.open("result.txt");
+	resultStream << "Text size (Mb)," << "Red Black Tree," << "2-3 Tree" << std::endl;
+	for (size_t i = 0; i < timesRedBlack.size(); ++i)
+		resultStream << textSizes[i] << " " << timesRedBlack[i] << " " << timeTwoThree[i] << std::endl;
+	resultStream.close();
+}
 
 
+
+void TestDanBernsteinHash()
+{
+	size_t MegaByte = 1024 * 1024;
+	size_t bufferSize = 2 * MegaByte;  // all file is 14 Mb
+	std::wstring wordBuffer(bufferSize, '\0');
+
+	std::ifstream wordStream;
+	wordStream.open("WorldAndPeace.txt");
+	size_t textPosition = 0;
+	if (wordStream.is_open())
+	{
+		char sym;
+
+		while (wordStream && textPosition < wordBuffer.size())
+		{
+			wordStream.get(sym);
+			wordBuffer[textPosition] = sym;
+			textPosition++;
+		}
+	}
+	wordStream.close();
+
+	std::wistringstream ss(wordBuffer);
+	//std::istringstream ss(wordBuffer);
+	std::set<std::wstring> uniqueWords;
+	while (ss)
+	{
+		std::wstring temp;
+		ss >> temp;
+		uniqueWords.insert(temp);
+	}
+		
+	auto hashSize = uniqueWords.size(); // 33981
+	hashSize = 33997;
+
+	std::vector<std::list<std::pair<std::wstring, int>>> hashTable(hashSize);
+	std::wistringstream allWordStream(wordBuffer);
+	std::vector<float> occupancy(hashSize);
+	std::vector<int> collisions(hashSize);
+	auto currentOccupancy = occupancy.begin();
+	auto currentCollistionCount = collisions.begin();
+	int insertedKeyCount = 0, numberOfColiisions = 0;
+	while (allWordStream && currentCollistionCount < collisions.end() && currentOccupancy < occupancy.end())
+	{
+		std::wstring temp;
+		allWordStream >> temp;
+
+		auto hash = GetStringHash(temp.c_str(), temp.size(), hashSize);
+		std::list<std::pair<std::wstring, int>>& hashedList = hashTable[hash];
+		bool found = false;
+
+		for (auto& keyFrequency : hashedList)
+		{
+			if (keyFrequency.first == temp)
+			{
+				keyFrequency.second++;
+				found = true;
+				break;
+			}
+		}
+
+		if (!found)
+		{
+			hashedList.push_back({ temp, 1 });
+			if(hashedList.size() > 1)
+				numberOfColiisions++;
+		}
+		insertedKeyCount++;
+
+		*currentOccupancy = (float)insertedKeyCount / hashSize; currentOccupancy++;
+		*currentCollistionCount = numberOfColiisions; currentCollistionCount++;
+	}
+
+
+
+
+	
+	/*std::vector<bool> isHashOccured(hashSize, false);
+
+	int insertedKeyCount = 0, numberOfColiisions = 0;
+
+	for (auto& word : uniqueWords)
+	{
+		auto hash = GetStringHash(word.c_str(), word.size(), hashSize);
+
+		if (isHashOccured[hash])
+			numberOfColiisions++;
+		else
+			isHashOccured[hash] = true;
+
+		insertedKeyCount++;
+		*currentOccupancy = (float)insertedKeyCount / hashSize; currentOccupancy++;
+		*currentCollistionCount = numberOfColiisions; currentCollistionCount++;
+	}*/
+
+	std::ofstream resultStream;
+	resultStream.open("one_dependency.txt");
+	resultStream << "Occupancy," << "Collision number" << std::endl;
+	for (size_t i = 0; i < occupancy.size(); ++i)
+		resultStream << occupancy[i] << " " << collisions[i] << std::endl;
+	resultStream.close();
+}
+
+float CollisionMeasurment(std::vector<bool>& is_occupied)
+{
+	auto numberOfExperiment = 1;
+	std::vector<float> history(numberOfExperiment);
+
+	for (int i = 0; i < numberOfExperiment; i++)
+	{
+		std::vector<bool> tempIsOccupied(is_occupied);
+		float newCollisionNumber = 0;
+		auto totalInserts = 100;
+
+		for (int i = 0; i < totalInserts; i++)
+		{
+			std::string newTemp;
+			newTemp = GenerateRandomString(GenerateIntNum(2, 10));
+			auto newHashKey = GetStringHash(newTemp.c_str(), newTemp.size(), is_occupied.size());
+
+			if (!tempIsOccupied[newHashKey])
+				tempIsOccupied[newHashKey] = true;
+			else
+				newCollisionNumber++;
+		}
+		history[i] = newCollisionNumber;
+	}
+
+	return std::accumulate(history.begin(), history.end(), 0) / history.size();
 }
