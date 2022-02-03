@@ -65,7 +65,7 @@ unsigned int GetStringHash(const wchar_t* start, unsigned int size, unsigned int
 }
 
 unsigned long
-DanBernsteinHash(unsigned char* str)//Dan Bernstein
+DanBernsteinHash(unsigned char* str)
 {
 	unsigned long hash = 5381;
 	int c;
@@ -315,7 +315,6 @@ size_t GetParent(size_t i) { return i / 2; }
 size_t GetLeft(size_t i) { return 2 * i + 1; }
 size_t GetRight(size_t i) { return 2 * i + 2; }
 
-//(int arr[], int n, int i)
 void Heapify(std::vector<int>& dataArray, size_t heapSize, size_t i)
 {
 	int largest = i;
@@ -533,12 +532,6 @@ bool IsOneComponent(std::vector<std::vector<bool>>& isRoadExists)
 		return true;
 	else
 		return false;
-
-	//for (int i = 0; i < isVisited.size(); i++)
-	//{
-	//	if (!isVisited[i])
-	//		DFS(i, isRoadExists, isVisited);
-	//}
 }
 
 int GetNumberOfConnections(std::vector<std::vector<bool>>& isRoadExists)
@@ -562,11 +555,7 @@ float GetMinDistance(std::vector<std::vector<float>>& cityDistances, std::vector
 
 	do
 	{
-		//if (!isRoadExists[cityIndicies[0]][*(cityIndicies.end() - 1)])
-		//	continue;
-
 		float temp = 0.;
-		//float temp = cityDistances[cityIndicies[0]][*(cityIndicies.end() - 1)];
 
 		for (auto cityIndexIt = cityIndicies.begin(); cityIndexIt != (cityIndicies.end() - 1); cityIndexIt++)
 		{

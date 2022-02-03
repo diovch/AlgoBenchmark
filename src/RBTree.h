@@ -14,11 +14,6 @@ public:
 	void remove(T key); // Удалить ключевой узел
 	RBTNode<T>* search(T key);
 	void print();
-	void preOrder();    // Предзаказ обхода печати красного черного дерева
-	void inOrder();    // Обход последовательности
-	void postOrder();    // пост-заказ обхода		
-
-
 
 private:
 	void leftRotate(RBTNode<T>*& root, RBTNode<T>* x);// левая рука
@@ -33,9 +28,6 @@ private:
 
 	RBTNode<T>* search(RBTNode<T>* node, T key) const;
 	void print(RBTNode<T>* node)const;
-	void preOrder(RBTNode<T>* tree)const;
-	void inOrder(RBTNode<T>* tree)const;
-	void postOrder(RBTNode<T>* tree)const;
 private:
 	RBTNode<T>* root;
 };
@@ -399,48 +391,3 @@ void RBTree<T>::print(RBTNode<T>* node)const {
 	print(node->left);
 	print(node->right);
 }
-//template<class T>		// Предзаказ обхода дерева РБ
-//void RBTree<T>::preOrder() {
-//	if (root == NULL)
-//		cout << "empty RBtree\n";
-//	else
-//		preOrder(root);
-//};
-//template<class T>
-//void RBTree<T>::preOrder(RBTNode<T>* tree)const {
-//	if (tree != NULL) {
-//		cout << tree->key << " ";
-//		preOrder(tree->left);
-//		preOrder(tree->right);
-//	}
-//}
-//template<class T>		// Обход дерева RB
-//void RBTree<T>::inOrder() {
-//	if (root == NULL)
-//		cout << "empty RBtree\n";
-//	else
-//		inOrder(root);
-//};
-//template<class T>
-//void RBTree<T>::inOrder(RBTNode<T>* tree)const {
-//	if (tree != NULL) {
-//		inOrder(tree->left);
-//		cout << tree->key << " ";
-//		inOrder(tree->right);
-//	}
-//}
-//template<class T>      // После обхода дерева RB
-//void RBTree<T>::postOrder() {
-//	if (root == NULL)
-//		cout << "empty RBtree\n";
-//	else
-//		postOrder(root);
-//};
-//template<class T>
-//void RBTree<T>::postOrder(RBTNode<T>* tree)const {
-//	if (tree != NULL) {
-//		postOrder(tree->left);
-//		postOrder(tree->right);
-//		cout << tree->key << " ";
-//	}
-//}

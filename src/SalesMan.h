@@ -2,10 +2,6 @@
 
 #include <vector>
 
-//std::vector<std::vector<float>> a;
-//std::vector<int> p;
-//std::vector<bool> used;
-//int ans = INT_MAX;
 
 void rec(std::vector<std::vector<float>>& cityDistances, std::vector<int>& cityIndicies, std::vector<bool>& used, 
 	float& minDistance, int idx, int cityNumber, float len, size_t& routeCount)
@@ -17,10 +13,6 @@ void rec(std::vector<std::vector<float>>& cityDistances, std::vector<int>& cityI
 	{
 		routeCount++;
 		minDistance = std::min(minDistance, len + cityDistances[cityIndicies[idx - 1]][0]); // len = путь по маршруту: 0, 1, ..., n-1. a[p[idx - 1]][0] = путь из n-1 в 0 город
-		
-		//for (auto& v : cityIndicies)
-		//	std::cout << v << " ";
-		//std::cout << std::endl;
 
 		return;
 	}
@@ -32,11 +24,6 @@ void rec(std::vector<std::vector<float>>& cityDistances, std::vector<int>& cityI
 
 		cityIndicies[idx] = i;
 		used[i] = true;
-
-		//if (cityDistances[cityIndicies[idx - 1]][cityIndicies[idx]] < 0.)
-		//	continue;
-		//else
-			rec(cityDistances, cityIndicies, used, minDistance, idx + 1, cityNumber, len + cityDistances[cityIndicies[idx - 1]][cityIndicies[idx]], routeCount); // рекурсивный вызов
 
 		used[i] = false;
 	}

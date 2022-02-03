@@ -37,5 +37,3 @@ void TreeComparision();
 void TestDanBernsteinHash();
 
 float CollisionMeasurment(std::vector<bool>& is_occupied);
-
-void TempTest();

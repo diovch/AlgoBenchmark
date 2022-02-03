@@ -26,10 +26,8 @@ void FindSubStringNaiveTest()
 	size_t textLength = 0, subStringLength = 0;
 	std::cin >> textLength >> subStringLength;
 
-	//const std::string& text = GenerateString(textLength);
-	//const std::string subString = GenerateString(subStringLength);
-	const std::basic_string<char32_t> text = U"atgccgta";
-	const std::basic_string<char32_t> subString = U"ccgt";
+	std::basic_string<char32_t> text = GenerateUTF32String(textLength);
+	std::basic_string<char32_t> subString = GenerateUTF32String(subStringLength);
 
 	auto t1 = high_resolution_clock::now();
 	FindSubStringNaive(text, subString);
@@ -51,13 +49,9 @@ void SearchInListTest()
 
 	list* result = SearchInList(first, target);
 	if (result == NULL)
-	{
 		std::cout << "No element found";
-	}
 	else
-	{
 		std::cout << "Element is found at follow reference " << result;
-	}
 }
 
 void InsertElementInListTest()
@@ -236,8 +230,6 @@ void BMSubstringSearch()
 		stringUTF32 text(fullText.begin(), fullText.begin() + textSize);
 		textSizes[iteration] = textSize;
 		
-		//std::basic_string<char32_t> sample = U"Глава";
-
 		auto beginTime = std::chrono::steady_clock::now();
 		std::set<size_t> naiveIndicies = FindSubStringNaive(text, sample);
 		auto endTime = std::chrono::steady_clock::now();
@@ -249,8 +241,6 @@ void BMSubstringSearch()
 		endTime = std::chrono::steady_clock::now();
 
 		boyerTimes[iteration] = duration<double, std::milli>{ endTime - beginTime }.count();
-
-		//bool correct = (boyerIndicies == naiveIndicies);
 	}
 
 	std::ofstream resultFile;
@@ -339,10 +329,12 @@ void SortingTestWithTimeMeasurment()
 	std::ofstream sortingTimeResults;
 	sortingTimeResults.open("SortingTime.txt");
 	sortingTimeResults << "Data Size," << "Multiphase Sort," << "Merge Sort" << std::endl;
+	
 	for (size_t dataSize = minDataSize, iteration = 0; 
 		dataSize < maxDataSize && iteration < measurmentCount;
 		dataSize += stepDataSize, iteration++)
-		sortingTimeResults << dataSize << " " << insertionTimes[iteration] << " " << heapTimes[iteration] << std::endl;
+			sortingTimeResults << dataSize << " " << insertionTimes[iteration] << " " << heapTimes[iteration] << std::endl;
+
 	sortingTimeResults.close();
 }
 
@@ -524,12 +516,6 @@ void TreeComparision()
 			std::wstring temp;
 			RBstream >> temp;
 
-			//auto it = mapTree.find(temp);
-			//if (it != mapTree.end())
-			//	(*it).second++;
-			//else
-			//	mapTree[temp] = 1;
-
 			auto foundNode = RedBlackTree.search(temp);
 			if (foundNode)
 				foundNode->occurenceFrequency++;
@@ -539,7 +525,6 @@ void TreeComparision()
 		auto endTime = std::chrono::steady_clock::now();
 		auto t1 = duration<float, std::milli>{ endTime - beginTime }.count();
 		timesRedBlack.push_back(t1);
-		//RedBlackTree.~RBTree();
 
 		tree2_3::Tree<std::wstring> tree23;
 		std::wistringstream stream23(wordSubBuffer);
@@ -559,33 +544,7 @@ void TreeComparision()
 		endTime = std::chrono::steady_clock::now();
 		auto t2 = duration<float, std::milli>{ endTime - beginTime }.count();
 		timeTwoThree.push_back(t2);
-		//tree23.~Tree();
-
-		//std::istringstream TwoThreeStream(wordSubBuffer);
-		//std::string firstWord; TwoThreeStream >> firstWord;
-
-		//TwoThreeNode* root = new TwoThreeNode(GetNaiveStringHash(firstWord));
-		//auto wordCounter = 0;
-		//beginTime = std::chrono::steady_clock::now();
-		//while (TwoThreeStream)
-		//{
-		//	std::string temp;
-		//	TwoThreeStream >> temp;
-		//	wordCounter++;
-
-		//	auto foundNode = search(root, GetNaiveStringHash(temp));
-		//	if (foundNode)
-		//		foundNode->occurenceFrequency++;
-		//	else
-		//	{
-		//		root = insert(root, GetNaiveStringHash(temp));
-		//	}
-		//}
-		//endTime = std::chrono::steady_clock::now();
-		//auto t2 = duration<float, std::milli>{ endTime - beginTime }.count();
-		//timeTwoThree.push_back(t2);
-		//removeAll(root);
-
+		
 	}
 
 	std::ofstream resultStream;
@@ -670,28 +629,6 @@ void TestDanBernsteinHash()
 		*currentOccupancy = (float)insertedKeyCount / hashSize; currentOccupancy++;
 		*currentCollistionCount = numberOfColiisions; currentCollistionCount++;
 	}
-
-
-
-
-	
-	/*std::vector<bool> isHashOccured(hashSize, false);
-
-	int insertedKeyCount = 0, numberOfColiisions = 0;
-
-	for (auto& word : uniqueWords)
-	{
-		auto hash = GetStringHash(word.c_str(), word.size(), hashSize);
-
-		if (isHashOccured[hash])
-			numberOfColiisions++;
-		else
-			isHashOccured[hash] = true;
-
-		insertedKeyCount++;
-		*currentOccupancy = (float)insertedKeyCount / hashSize; currentOccupancy++;
-		*currentCollistionCount = numberOfColiisions; currentCollistionCount++;
-	}*/
 
 	std::ofstream resultStream;
 	resultStream.open("one_dependency.txt");

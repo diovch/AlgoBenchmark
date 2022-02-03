@@ -20,12 +20,6 @@ struct tree
 	struct tree* right;
 };
 
-template <typename dataType>
-void CreateTree(tree<dataType>* parent, dataType* t, size_t size);
-
-template <typename dataType>
-void InsertTreeElement(tree<dataType>** l, dataType item, tree<dataType>* parent);
-
 std::string GenerateDNAString(size_t length);
 
 std::basic_string<char32_t> GenerateUTF32String(size_t size);
@@ -37,5 +31,3 @@ void GenerateExperimentStand(std::list<std::vector<int>>& experimentStand, std::
 void GenerateCityMap(std::vector<std::vector<float>>& cityDistances, std::vector<float>& xCoord, std::vector<float>& yCoord);
 
 int GenerateIntNum(int min, int max);
-
-std::vector<std::vector<int>> GeneratePermutations(int n);
